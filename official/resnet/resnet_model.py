@@ -133,14 +133,14 @@ def _building_block_v1(inputs, filters, training, projection_shortcut, strides,
       inputs=inputs, filters=filters, kernel_size=3, strides=strides,
       data_format=data_format)
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   inputs = conv2d_fixed_padding(
       inputs=inputs, filters=filters, kernel_size=3, strides=1,
       data_format=data_format)
   inputs = batch_norm(inputs, training, data_format)
   inputs += shortcut
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   return inputs
 
@@ -171,7 +171,7 @@ def _building_block_v2(inputs, filters, training, projection_shortcut, strides,
   """
   shortcut = inputs
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   # The projection shortcut should come after the first batch norm and ReLU
   # since it performs a 1x1 convolution.
@@ -183,7 +183,7 @@ def _building_block_v2(inputs, filters, training, projection_shortcut, strides,
       data_format=data_format)
 
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
   inputs = conv2d_fixed_padding(
       inputs=inputs, filters=filters, kernel_size=3, strides=1,
       data_format=data_format)
@@ -228,20 +228,20 @@ def _bottleneck_block_v1(inputs, filters, training, projection_shortcut,
       inputs=inputs, filters=filters, kernel_size=1, strides=1,
       data_format=data_format)
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   inputs = conv2d_fixed_padding(
       inputs=inputs, filters=filters, kernel_size=3, strides=strides,
       data_format=data_format)
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   inputs = conv2d_fixed_padding(
       inputs=inputs, filters=4 * filters, kernel_size=1, strides=1,
       data_format=data_format)
   inputs = batch_norm(inputs, training, data_format)
   inputs += shortcut
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   return inputs
 
@@ -280,7 +280,7 @@ def _bottleneck_block_v2(inputs, filters, training, projection_shortcut,
   """
   shortcut = inputs
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
 
   # The projection shortcut should come after the first batch norm and ReLU
   # since it performs a 1x1 convolution.
@@ -292,13 +292,13 @@ def _bottleneck_block_v2(inputs, filters, training, projection_shortcut,
       data_format=data_format)
 
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
   inputs = conv2d_fixed_padding(
       inputs=inputs, filters=filters, kernel_size=3, strides=strides,
       data_format=data_format)
 
   inputs = batch_norm(inputs, training, data_format)
-  inputs = tf.nn.relu(inputs)
+  inputs = tf.nn.elu(inputs)
   inputs = conv2d_fixed_padding(
       inputs=inputs, filters=4 * filters, kernel_size=1, strides=1,
       data_format=data_format)
@@ -508,7 +508,7 @@ class Model(object):
       # block's projection. Cf. Appendix of [2].
       if self.resnet_version == 1:
         inputs = batch_norm(inputs, training, self.data_format)
-        inputs = tf.nn.relu(inputs)
+        inputs = tf.nn.elu(inputs)
 
       if self.first_pool_size:
         inputs = tf.layers.max_pooling2d(
@@ -529,7 +529,7 @@ class Model(object):
       # building/bottleneck block, eg resnet V2.
       if self.pre_activation:
         inputs = batch_norm(inputs, training, self.data_format)
-        inputs = tf.nn.relu(inputs)
+        inputs = tf.nn.elu(inputs)
 
       # The current top layer has shape
       # `batch_size x pool_size x pool_size x final_size`.
@@ -541,6 +541,6 @@ class Model(object):
       inputs = tf.identity(inputs, 'final_reduce_mean')
 
       inputs = tf.squeeze(inputs, axes)
-      inputs = tf.layers.dense(inputs=inputs, units=self.num_classes)
+      #inputs = tf.layers.dense(inputs=inputs, units=self.num_classes)
       inputs = tf.identity(inputs, 'final_dense')
       return inputs
